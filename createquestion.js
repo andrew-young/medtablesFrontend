@@ -97,7 +97,7 @@ function question(){
 	}
 	function makeimageupload(question){
 		
-		 $('#divimageupload').jqxFileUpload({ width: 300, uploadUrl: 'upload.php', fileInputName: 'fileToUpload' ,
+		 $('#divimageupload').jqxFileUpload({ width: 300, uploadUrl: 'scripts/upload.php', fileInputName: 'fileToUpload' ,
 			renderFiles: function (fileName) {
 				var stopIndex = fileName.indexOf('.');
 				var name = fileName.slice(0, stopIndex);
@@ -111,9 +111,10 @@ function question(){
 		$('#divimageupload').on('uploadEnd', function (event) {
 			var args = event.args;
 			var fileName = args.file;
-			//console.log(args)
-			//console.log(args.response)
+			console.log(args)
+			console.log(args.response)
 			var serverResponce = JSON.parse(args.response);
+			console.log(serverResponce)
 			// Your code here.
 			let img={imagename:'temp/'+serverResponce.filename, note:null}
 			//console.log(questionpage.question)
