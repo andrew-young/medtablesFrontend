@@ -128,6 +128,7 @@ function astablequestion(testquestion){
 			textarea.id='textarea'+qid
 			textarea.value=tablequestion.question.text
 			textarea.className='question'
+			textarea.setAttribute('readonly', true);
 			questiondiv.appendChild(textarea);
 		
 		
@@ -187,6 +188,7 @@ function astablequestion(testquestion){
 		//var cell;
 		if (tablequestion.colstart==1 && tablequestion.rowstart==1){
 			grid.getcell(0,0).draggable.draggroup=[]
+			grid.getcell(0,0).setdraggable(false)
 		}
 		if (ncol >1){
 			for(let coli=colstart ; coli < ncol+colstart ;coli++) {

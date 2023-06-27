@@ -1,3 +1,4 @@
+console.log("dragabblecontainer")
 function dragcontext(){
 	var dragging=false
 	//var selecteditems=[]
@@ -11,17 +12,24 @@ function dragcontext(){
 	var swapcontainer=null
 	var dragstarti=null
 	var dragstartcontainer=null
+	var itemoffsets=[]
+	var touchstartobj=null
+	var touchmoveobjects=[]
+
+
+
+
 
 	
-/*
-	function ondragoverdefault(ev,dragitems,targetobj,target){
-		ev.preventDefault();//allows drop
-		ev.stopPropagation()
-		ev.target.style.cursor = 'pointer'; 
-		ev.dataTransfer.dropEffect = "move";
-	}
-*/
-	
+	/*
+		function ondragoverdefault(ev,dragitems,targetobj,target){
+			ev.preventDefault();//allows drop
+			ev.stopPropagation()
+			ev.target.style.cursor = 'pointer'; 
+			ev.dataTransfer.dropEffect = "move";
+		}
+	*/
+		
 	
 
 	
@@ -114,6 +122,7 @@ function dragcontext(){
 		}else{
 			container.div=div
 		}
+		//container.div.style.position="relative"
 		container.sort=function(comparator){
 			//(a, b) => (a.text > b.text) ? 1 : -1
 
@@ -247,8 +256,19 @@ function dragcontext(){
 			container.ondragover(ev,context.selecteditems,containerobj,containerobj.container)
 		}
 		*/
+		container.ontouchmove=function(ev){
+			if (container.div.draggable==false){
+				return
+			}
+			console.log("container touch move")
+			if (container.touchenter=false){
+				container.ondragenter(ev)
+				container.touchenter=true
+			}
+			
+		}
 		container.ondragenterswap=function (ev,selecteditems,container){
-			//console.log("containerdragenterswap")
+			console.log("containerdragenterswap")
 			ev.preventDefault();
 			ev.stopPropagation();
 
@@ -290,29 +310,27 @@ function dragcontext(){
 		}
 		
 		container.ondropdefault=function(ev) {
-			//console.log("container drop")
-			/*
-			ev.preventDefault();
-			ev.stopPropagation();
-			//draggable.container.list.length
-			for (let j = 0 ; j < context.selecteditems.length;j++){
-				var item=context.selecteditems[j]
-				container.insert(item,container.list.length)
-			}
-			//console.log(draggable.container)
-			//context.selecteditems=[]
-			
-			if (container.ondrop){
-				//container.ondrop(ev)
-			}
-			*/
 		}
+		container.onpointerenter=function(ev){
+			if (ev.pointerType=="mouse"){
+				return
+			}
+			if (context.selecteditems.length==0){
+				return
+			}
+			ev.dataTransfer={}
+			container.ondragenter(ev,context.selecteditems,container)
+		}
+		container.div.onpointerenter=function(ev){
+			container.onpointerenter(ev)
+		}
+		
 		container.ondrop=container.ondropdefault
 		container.div.ondrop=function(ev){
 			container.ondrop(ev)
 		}
 		container.ondragenterdefault=function(ev,selecteditems,container){
-			//console.log("containerenter")
+			console.log("container enter")
 			ev.preventDefault();
 			ev.stopPropagation();
 			//container.ondrop(ev)
@@ -347,6 +365,7 @@ function dragcontext(){
 
 
 	context.asdraggable=function (draggableobj,div,draggroup){
+
 		if (draggableobj==null){
 			var draggableobj={}
 		}
@@ -364,22 +383,123 @@ function dragcontext(){
 		draggable.i=null//index in container
 		
 		draggable.draggroup=draggroup
-		/*
-		if(draggable.hasOwnProperty("draggable.div")==false){
-			draggable.div==document.createElement('div')
-		}
-		*/
+		draggable.offset={}
+		draggable.touchenter=false
+		draggable.touchstart=false
+		draggable.div.style.position="relative"
+		draggable.div.style.zIndex=0
+		//draggable.div.id="draggable1"
+		//draggable.ondragenter=null
+		draggable.div.draggable="true"
+		draggable.div.style.touchAction="none"
+		//draggable.div.style.cursor="pointer"
+		//document.body.style.zIndex=-1
+
+
 		draggable.remove=function() {
 			if (draggable.container!=null){
 				draggable.container.removecell(draggable)
 			}
 		}
-		draggable.div.draggable="true"
-		draggable.div.style.cursor="pointer"
+
 		//draggeditem
 		
+		draggable.div.onpointerdown=function(ev) {
+			
+			ev.target.releasePointerCapture(ev.pointerId)
+			if (ev.pointerType=="mouse"){
+				return
+			}
+			ev.preventDefault()
+			console.log("pointer down")
+			console.log(draggable.div)
+			if (draggable.div.draggable==false){
+				return
+			}
+			//console.log(draggable.div)
+			//ev.stopPropagation();
+			touchstartobj=draggableobj
+			draggable.touchstart=true
+			draggable.offset.x=ev.clientX-draggable.div.getBoundingClientRect().left
+			draggable.offset.y=ev.clientY-draggable.div.getBoundingClientRect().top
+			console.log(ev.clientY)
+			console.log(draggable.div.getBoundingClientRect().top)
+
+			
+			function docpointermove (ev){
+				
+				ev.target.releasePointerCapture(ev.pointerId)
+				//console.log("doc pointer move")
+				if (ev.pointerType=="mouse"){
+					return
+				}
+				ev.preventDefault()
+				//console.log("touch start")
+				if (draggable.div.draggable==false){
+					return
+				}
+				//console.log(draggable.div)
+				if (draggable.touchstart){
+					console.log("drag begin")
+					draggable.clone=draggable.div.cloneNode(true);
+					draggable.clone.draggable=false
+					draggable.clone.id="clone"
+					//draggable.clone.style.float ="left"
+					//draggable.clone.style.display ="inline-block"
+					draggable.clone.style.position ="fixed"
+					draggable.clone.style.pointerEvents ="none"
+					//draggable.clone.style.zIndex =2
+					//draggable.div.style.zIndex =-1
+					//draggable.container.div.style.zIndex =0
+					//console.log(draggable.container.div.style.position)
+					let h=draggable.div.getBoundingClientRect().height
+					let w=draggable.div.getBoundingClientRect().width
+					draggable.clone.style.height=h+"px"
+					draggable.clone.style.width=w+"px"
+					//document.body.appendChild(draggable.clone)
+					//draggable.clone.onpointerenter=function(ev){ev.preventDefault()}
+					//draggable.container.div.insertBefore(draggable.clone,draggable.div)
+					draggable.container.obj.draggable.container.div.appendChild(draggable.clone)
+					//draggable.container.div.prepend(draggable.clone)
+					draggable.div.ondragstart(ev)
+					draggable.touchstart=false
+				}
+				//console.log(context.selecteditems)
+				for (let j = 0 ; j < context.selecteditems.length;j++){
+					let dobj = context.selecteditems[j]
+					let div=dobj.draggable.clone
+					//let touchLocation = ev.targetTouches[0];
+					//console.log(dobj)
+					//console.log(div)
+					//let h=dobj.draggable.div.getBoundingClientRect().height
+					div.style.left=ev.clientX-dobj.draggable.offset.x + 'px'
+					div.style.top=ev.clientY-dobj.draggable.offset.y + 'px'
+					//console.log(ev.clientY)
+					//console.log(div.style.top)
+					//console.log(dobj.draggable.offset.y)
+					//console.log(div)
+				}
+				
+			}
+			//draggable.div.onpointermove=docpointermove
+			//draggable.container.div.onpointermove=docpointermove
+			document.body.onpointermove=docpointermove
+		}		
+		
+		
+		
+		draggable.div.ontouchstart=function(ev) { //prevents pointer cancel from being called
+			//
+			if (ev.pointerType=="mouse"){
+				return
+			}
+			ev.preventDefault()
+			//ev.target.releasePointerCapture(ev.pointerId)
+		}
+		
+
 		draggable.div.ondragstart=function(ev) {
-			//console.log("ondragstart")
+			console.log("ondragstart")
 			ev.stopPropagation();
 			dragging=true
 			if (context.selecteditems.length==0){
@@ -404,8 +524,108 @@ function dragcontext(){
 			}
 			//console.log(context.selecteditems)
 		}
+		
+		draggable.div.onpointerup =function(ev) {
+			
+			ev.target.releasePointerCapture(ev.pointerId)
+			if (ev.pointerType=="mouse"){
+				return
+			}
+			ev.preventDefault()
+			console.log("touch end")
+			for (let j = 0 ; j < context.selecteditems.length;j++){
+				let dobj = context.selecteditems[j]
+				let div=dobj.draggable.clone
+				if (dobj.draggable.clone){
+					dobj.draggable.clone.remove()
+					console.log("remove clone")
+					dobj.draggable.clone=null
+				}
+			}
+			//context.selecteditems=[]
+			draggable.div.ondragend(ev)
+			draggable.touchenter=false
+			draggable.touchstart=false
+			draggable.container.div.style.zIndex =0
+			document.body.onpointermove=undefined
+		}
+		
+		
+		draggable.div.onpointerenter =function(ev) {
+			console.log("pointer enter")
+			
+			
+			ev.target.releasePointerCapture(ev.pointerId)
+			
+			if (ev.pointerType=="mouse"){
+				return
+			}
+			ev.preventDefault()
+			if (draggable.div.draggable==false){
+				return
+			}
+			console.log("pointer enter")
+			console.log(draggable.div)
+			//console.log(draggable.div.draggable)
+			
+			let itself=false
+			if (context.selecteditems.length>0){
+				for (let j = 0 ; j < context.selecteditems.length;j++){
+					let dobj = context.selecteditems[j]
+					if (dobj==draggableobj){
+						//console.log(draggableobj.draggable.div.id)
+						itself=true;
+						break;
+					}
+				}
+				console.log(itself)
+				if (!itself){
+					ev.dataTransfer={}
+					ev.stopPropagation()
+					draggable.div.ondragenter(ev)
+				}
+			}
+			//console.log(itself)
+			//console.log(ev)
+		}
+		
+		
+		/*
+		draggable.div.onpointerleave =function(ev) {
+			ev.preventDefault()
+			if (draggable.div.draggable==false){
+				return
+			}
+			if (ev.pointerType=="mouse"){
+				return
+			}
+			console.log("touch leave")
+			//console.log(ev)
+		}
+		draggable.div.onpointercancel =function(ev) {
+			ev.preventDefault()
+			if (draggable.div.draggable==false){
+				return
+			}
+			if (ev.pointerType=="mouse"){
+				return
+			}
+			console.log("touch cancel")
+			//console.log(ev)
+		}
+		draggable.div.onpointerout =function(ev) {
+			ev.preventDefault()
+			if (draggable.div.draggable==false){
+				return
+			}
+			if (ev.pointerType=="mouse"){
+				return
+			}
+			console.log("touch out")
+		}
+		*/
 		draggable.div.ondragend =function(ev) {
-			//console.log("drag end")
+			console.log("drag end")
 			swapitem=null
 			//console.log(context.selecteditems)
 			dragging=false
@@ -418,10 +638,10 @@ function dragcontext(){
 				}
 			}
 			context.selecteditems=[]
-			
+			console.log(context.selecteditems)
 		}
 		draggable.ondragenterdefault =function(ev) {
-			//console.log("drag enter")
+			console.log("drag enter1")
 			ev.preventDefault();
 			ev.stopPropagation();
 			//console.log(context.selecteditems)
@@ -464,26 +684,26 @@ function dragcontext(){
 			draggable.ondragover(ev,context.selecteditems,draggableobj,draggableobj.draggable)
 		}
 		*/
-		draggable.ondragenterswap=function (ev,dragitems,targetobj){
-			//console.log("dragenterswap")
+		draggable.ondragenterswap=function (ev,dragitems,targetobj){//targetobj is draggable
+			console.log("dragenterswap")
 			ev.preventDefault();
 			ev.stopPropagation();
-
+			//console.log(draggable)
 			if (!dropallowed(targetobj.draggable.container)){
 			
 				//console.log("drop not allowed")
-				draggable.div.classList.add("nondraggable-cursor");
-				draggable.div.classList.remove("draggable-cursor");
+				//draggable.div.classList.add("nondraggable-cursor");
+				//draggable.div.classList.remove("draggable-cursor");
 				ev.dataTransfer.dropEffect = "not-allowed";
-				draggable.div.style.cursor="pointer"
-				ev.target.style.cursor = 'pointer'; 
+				//draggable.div.style.cursor="pointer"
+				//ev.target.style.cursor = 'pointer'; 
 					return false;
 			}else{
 				ev.dataTransfer.dropEffect = "move";
-				draggable.div.classList.add("draggable-cursor");
-				draggable.div.classList.remove("nondraggable-cursor");
-				draggable.div.style.cursor="pointer"
-				ev.target.style.cursor = 'pointer'; 
+				//draggable.div.classList.add("draggable-cursor");
+				//draggable.div.classList.remove("nondraggable-cursor");
+				//draggable.div.style.cursor="pointer"
+				//ev.target.style.cursor = 'pointer'; 
 			}
 			
 			//console.log(dragitems[0])
@@ -495,6 +715,8 @@ function dragcontext(){
 				console.log("not same container")
 				return false
 			}
+			console.log(targetobj.draggable.div)
+			console.log(dragitems[0].draggable.div)
 			let dragtargetcontainer=targetobj.draggable.container
 			let dicontainer1=dragitems[0].draggable.container
 			//console.log(targetobj)
@@ -521,8 +743,8 @@ function dragcontext(){
 				}
 				
 			}
-			
-
+			draggable.touchenter=false
+			//draggable.touchenter=false
 			return false
 		}
 	
@@ -533,6 +755,12 @@ function dragcontext(){
 		}
 		draggable.div.onmousemove=function(ev) {
 			ev.target.style.cursor = 'pointer'; 
+		}
+		draggable.notdraggable=function(){
+			draggableobj.draggable=undefined;
+			draggable.div.ondragenter=undefined
+			draggable.div.ondragstart=undefined
+			draggable.div.ondragend=undefined
 		}
 	}
 

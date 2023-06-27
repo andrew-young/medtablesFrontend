@@ -1,8 +1,6 @@
 var username=undefined
 var userid=undefined
-var rooturl =""
-var api="/medtables/api/values/"
-
+console.log("common")
 function makebutton(classname,id,text,click){
 	b1 = document.createElement('button');
 	b1.className=classname
@@ -85,18 +83,31 @@ function gettest(tid,successfunc){
 			//,dataType: 'json'
 		});
 }
+function mycallback(json){
+	console.log('jsonp')
+	console.log(json)
+}
 function gettestbyuserid(userid,successfunc){
 	console.log('gettestdata')
-	uri=api+'gettestbyuserid/'+userid
+	uri=api+'gettestbyuserid/'+userid//+'?callback=mycallback'
+	console.log(uri)
 	$.ajax({
 			url: uri,
 			type: "Get",
+			crossDomain:true,
+			dataType: 'json',
+			contentType: 'application/json',
+			//contentType: 'application/javascript',
 			timeout: 3000,
 			'success': successfunc,
 			error: function (xhr,status,error) { 
+				console.log(status);
+				console.log(error);
+				console.log(xhr);
 				var err = JSON.parse(xhr.responseText);
 				console.log(err);
-				alert(err.ExceptionMessage) }
+				alert(err.ExceptionMessage)
+				}
 			//,dataType: 'json'
 		});
 }

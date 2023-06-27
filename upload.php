@@ -1,5 +1,5 @@
 <?php
-$target_dir = "./image/temp/";
+$target_dir = "..//image/temp/";
 //$target_dir = "./image/";
 $target_file =  uniqid() . "_" . basename($_FILES["fileToUpload"]["name"]);
 $target = $target_dir . $target_file;
@@ -40,7 +40,7 @@ if ($uploadOk == 0) {
     if (move_uploaded_file($_FILES["fileToUpload"]["tmp_name"], $target)) {
         echo "{\"filename\" : \"" . $target_file . "\" , \"response\" : \"The file ". basename( $_FILES["fileToUpload"]["name"]). " has been uploaded.\"}";
     } else {
-        echo "{\"filename\" : \"" . $target_file . "\" , \"response\" : \"Sorry, there was an error uploading your file.\"}";
+        echo "{\"filename\" : \"" . $target_file . "\" , \"response\" : \"Sorry, there was an error uploading your file. Error\"}".$_FILES["file"]["error"];
     }
 }
 ?>

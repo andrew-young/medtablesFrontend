@@ -16,43 +16,41 @@ function initpages(){
 	pages[testpage.id]=testpage
 	pages[questionpage.id]=questionpage
 
-	var body=document.body
 	var homediv=document.createElement('div');
-	
 	homediv.style.display="inline"
 	homediv.id="home"
 	homepage.div=homediv
-	body.appendChild(homediv)
+	rootdiv.appendChild(homediv)
 	
 	var logindiv=document.createElement('div');
 	logindiv.style.display="none"
 	logindiv.id="login"
 	loginpage.div=logindiv
-	body.appendChild(logindiv)
+	rootdiv.appendChild(logindiv)
 	
 	var browsediv=document.createElement('div');
 	logindiv.style.display="none"
 	logindiv.id="browse"
 	browsepage.div=browsediv
-	body.appendChild(browsediv)
+	rootdiv.appendChild(browsediv)
 	
 	var taketestdiv=document.createElement('div');
 	taketestdiv.style.display="none"
 	taketestdiv.id="taketest"
 	taketestpage.div=taketestdiv
-	body.appendChild(taketestdiv)
+	rootdiv.appendChild(taketestdiv)
 	
 	var testdiv=document.createElement('div');
 	testdiv.style.display="none"
 	testdiv.id="test"
 	testpage.div=testdiv
-	body.appendChild(testdiv)
+	rootdiv.appendChild(testdiv)
 	
 	var questiondiv=document.createElement('div');
 	questiondiv.style.display="none"
 	questiondiv.id="question"
 	questionpage.div=questiondiv
-	body.appendChild(questiondiv)
+	rootdiv.appendChild(questiondiv)
 	
 	
 }
@@ -106,8 +104,6 @@ function home(){
 }
 function login(){
 	loginpage.div.style.display="inline"
-	//root=newpage()
-	//var body= document.body;
 	if (loginpage.init==false){
 		loginpage.init=true
 		iusername = document.createElement('input');
@@ -129,7 +125,6 @@ function login(){
 		loginpage.div.appendChild(b1)
 	}
 	loginpage.div.style.display="inline"
-		//body.appendChild(root)
 }
 var username=null;
 
@@ -187,6 +182,11 @@ function logout(){
 
 username=$.cookie("username");
 userid=$.cookie("userid");
+if (userid==null){
+	userid=1
+	username='andrew'
+}
 //getstate();
+console.log("test")
 initpages()
 loadsection()
